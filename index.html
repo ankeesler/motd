@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <title>motd</title>
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>☀️</text></svg>">
+    <style>
+      * {
+          font-family: monospace;
+          text-align: center;
+      }
+      h1 {
+          font-size: 40px;
+      }
+      h2 {
+          font-size: 30px;
+      }
+      h3 {
+          font-size: 20px;
+      }
+
+      #mon-container {
+          border: 6px solid #FFCB05;
+          border-radius: 30px;
+          margin-right: 20%;
+          margin-left: 20%;
+      }
+      #mon-name {
+          color: #3D7DCA;
+      }
+
+      #error-message {
+          color: red;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>Mon Of The Day</h1>
+
+    <div id="waiting-container" hidden="false">
+      <h2>loading...</h2>
+    </div>
+
+    <div id="mon-container" hidden="true">
+      <h2><a id="mon-name"></a></h2>
+      <img alt="mon-image" id="mon-image" />
+      <h3 id="mon-type"></h3>
+      <h3 id="mon-origin"></h3>
+    </div>
+
+    <div id="error-container" hidden="true">
+      <h2 id="error-message"></h2>
+    </div>
+
+    <script>
+      window.onload = async () => {
+          const getMonId = async (year, month, day) => {
+              const message = new TextEncoder().encode(`${year}-${month}-${day}`);
+              const hashBuffer = await crypto.subtle.digest('SHA-1', message);
+              const hashArray = Array.from(new Uint8Array(hashBuffer));
+              const hashHex = hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+              console.log(`today's hash: ${hashHex}`);
+
+              const monId = new Uint16Array(hashBuffer)[0];
+              console.log(`today's mon id: ${monId}`);
+
+              // As of gen 8, this is the highest national pokedex id.
+              const maxMonId = 905;
+              return monId % maxMonId;
+          }
+
+          const onMonSpecies = (monSpecies) => {
+              document.getElementById('waiting-container').hidden = true;
+              document.getElementById('error-container').hidden = true;
+
+              const monOrigin = `since ${monSpecies.generation.name}`
+
+              document.getElementById('mon-origin').textContent = monOrigin;
+
+              document.getElementById('mon-container').hidden = false;
+          }
+
+          const onMon = (mon) => {
+              document.getElementById('waiting-container').hidden = true;
+              document.getElementById('error-container').hidden = true;
+
+              const monName = mon.name;
+              const monType = mon.types.map(t => t.type.name).join("/");
+
+              document.getElementById('mon-name').textContent = monName;
+              document.getElementById('mon-name').href = `https://pokemondb.net/pokedex/${monName}`;
+              document.getElementById('mon-image').src = `https://img.pokemondb.net/artwork/${monName}.jpg`;
+              document.getElementById('mon-type').textContent = monType
+
+              document.getElementById('mon-container').hidden = false;
+
+              fetch(mon.species.url).then(rsp => rsp.json()).then(onMonSpecies).catch(onError);
+          }
+
+          const onError = (e) => {
+              document.getElementById('waiting-container').hidden = true;
+              document.getElementById('mon-container').hidden = true;
+              
+              const errorMessage = document.getElementById('error-message');
+              errorMessage.textContent = e;
+
+              document.getElementById('error-container').hidden = false;
+          }
+
+          const date = new Date();
+          const year = date.getFullYear();
+          const month = date.getMonth();
+          const day = date.getDate();
+          const monId = await getMonId(year, month, day);
+          const monUrl = `https://pokeapi.co/api/v2/pokemon/${monId}`;
+          fetch(monUrl).then(rsp => rsp.json()).then(onMon).catch(onError);
+      }
+    </script>
+  </body>
+</html>
