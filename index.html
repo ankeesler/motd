@@ -6,28 +6,29 @@
     <meta name="viewport" content="width=device-width">
     <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>☀️</text></svg>">
     <style>
-      * {
-          font-family: monospace;
+      #container {
+          display: flex;
+          flex-flow: column wrap;
+          align-content: center;
           text-align: center;
-      }
-      h1 {
-          font-size: 40px;
-      }
-      h2 {
-          font-size: 30px;
-      }
-      h3 {
-          font-size: 20px;
+          font-family: monospace;
+          height: 100%;
       }
 
       #mon-container {
           border: 6px solid #FFCB05;
+          padding: 2em;
           border-radius: 30px;
-          margin-right: 20%;
-          margin-left: 20%;
+          height: auto;
       }
+
       #mon-name {
           color: #3D7DCA;
+      }
+
+      #mon-image {
+          max-width: 90%;
+          max-height: 90%;
       }
 
       #error-message {
@@ -36,21 +37,24 @@
     </style>
   </head>
   <body>
-    <h1>Mon Of The Day</h1>
+    <div id="container">
 
-    <div id="waiting-container" hidden="false">
-      <h2>loading...</h2>
-    </div>
+      <div id="waiting-container" hidden="false">
+        <h2>loading...</h2>
+      </div>
 
-    <div id="mon-container" hidden="true">
-      <h2><a id="mon-name"></a></h2>
-      <img alt="mon-image" id="mon-image" />
-      <h3 id="mon-type"></h3>
-      <h3 id="mon-origin"></h3>
-    </div>
+      <div id="mon-container" hidden="true">
+        <h1>Mon Of The Day</h1>
 
-    <div id="error-container" hidden="true">
-      <h2 id="error-message"></h2>
+        <h2><a id="mon-name"></a></h2>
+        <img alt="mon-image" id="mon-image" />
+        <h3 id="mon-type"></h3>
+        <h3 id="mon-origin"></h3>
+      </div>
+
+      <div id="error-container" hidden="true">
+        <h2 id="error-message"></h2>
+      </div>
     </div>
 
     <script>
